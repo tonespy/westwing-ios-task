@@ -49,6 +49,13 @@ class NetworkingService {
     func createObservableResponse<T: Request>(request: T) -> Observable<T.ParsedResponseType> {
         return urlSession.rx
             .json(request: URLRequest(url: request.url))
+            .catchError { error in
+                let e = error as NSError
+                if e.code == NSURLErrorNotConnectedToInternet && e.domain == NSURLErrorDomain {
+                    throw InternetConnectionError()
+                }
+                throw NetworkingError(networkErrorCause: error)
+            }
             .map { rawData in
                 guard let data = rawData as? T.RawResponseType else {
                     throw UnexpectedResponse(response: rawData)
@@ -56,6 +63,21 @@ class NetworkingService {
                 return try request.parseResponse(withData: data)
             }
     }
+}
+
+/**
+ Error which occurs when networking error happens.
+ */
+struct NetworkingError: Error {
+    
+    // Reason behind networking error
+    let networkErrorCause: Error
+}
+
+/**
+ Error which occurs when there is no internet connection
+ */
+struct InternetConnectionError: Error {
 }
 
 /**
