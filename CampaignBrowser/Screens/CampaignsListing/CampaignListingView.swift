@@ -68,7 +68,7 @@ class ListingDataSource: NSObject, UICollectionViewDataSource, UICollectionViewD
             campaignCell.name = campaign.name
             campaignCell.descriptionText = campaign.description
         } else {
-            assertionFailure("The cell should a CampaignCell")
+            assertionFailure("The cell should be CampaignCell")
         }
         return cell
     }
